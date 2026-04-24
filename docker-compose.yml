@@ -1,0 +1,59 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: aegisid_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - aegisid_network
+
+  python-ai:
+    build:
+      context: ./python_service
+    container_name: aegisid_python_ai
+    ports:
+      - "8000:8000"
+    networks:
+      - aegisid_network
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  backend:
+    build:
+      context: ./backend
+    container_name: aegisid_backend
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/aegisid
+      - ENCRYPTION_KEY=supersecretkey123456789012345678 # Must be 32 chars exactly!
+      - PYTHON_AI_URL=http://python-ai:8000/process_biometrics
+      - PORT=3001
+    depends_on:
+      - mongodb
+      - python-ai
+    networks:
+      - aegisid_network
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: aegisid_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - aegisid_network
+    environment:
+      # Optional: set env variable for backend URL in Next.js if necessary
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+
+networks:
+  aegisid_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
