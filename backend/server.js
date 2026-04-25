@@ -49,8 +49,8 @@ app.post('/api/kyc/start', async (req, res) => {
             await user.save();
         }
 
-        // Provide an externalUserId to Sumsub (we use walletAddress)
-        const externalUserId = walletAddress;
+        // Provide an externalUserId to Sumsub (we use walletAddress + timestamp for infinite hackathon testing)
+        const externalUserId = `${walletAddress}_${Date.now()}`;
         const levelName = 'basic-kyc-level'; // Assume this level exists in Sumsub
 
         // The path to generate an access token
@@ -86,13 +86,13 @@ app.post('/api/kyc/webhook', async (req, res) => {
 
         // Example payload type: 'applicantReviewed'
         if (payload.type === 'applicantReviewed') {
-            const externalUserId = payload.externalUserId; // this is the walletAddress
+            // externalUserId looks like 0x123_1700000, we split to get the real wallet
+            const walletAddress = payload.externalUserId.split('_')[0]; 
             const applicantId = payload.applicantId;
             const reviewResult = payload.reviewResult;
 
             if (reviewResult.reviewAnswer === 'GREEN') {
                 // KYC Passed
-                const walletAddress = externalUserId;
 
                 // Generate proofHash
                 const proofHashInput = applicantId + walletAddress + SECRET_SALT;
@@ -113,7 +113,7 @@ app.post('/api/kyc/webhook', async (req, res) => {
             } else {
                 // KYC Failed
                 await User.findOneAndUpdate(
-                    { walletAddress: externalUserId },
+                    { walletAddress },
                     { status: 'FAILED' },
                     { upsert: true }
                 );

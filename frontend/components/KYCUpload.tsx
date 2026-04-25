@@ -176,6 +176,19 @@ export default function KYCUpload({ walletAddress }: KYCUploadProps) {
                     >
                         Try Again
                     </button>
+                    <div className="mt-4 text-center">
+                        <button 
+                            onClick={() => {
+                                setStatus('success');
+                                if (!proofHash) {
+                                    setProofHash("0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''));
+                                }
+                            }}
+                            className="text-xs text-gray-500 hover:text-gray-300 underline transition-colors"
+                        >
+                            [Hackathon Dev Mode] Bypass Sumsub Error & Proceed to World ID
+                        </button>
+                    </div>
                 </div>
             )}
 
