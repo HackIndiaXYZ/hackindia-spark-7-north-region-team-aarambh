@@ -3,11 +3,9 @@ import Head from 'next/head';
 import { ethers } from 'ethers';
 import { Shield, Wallet } from 'lucide-react';
 import KYCUpload from '../components/KYCUpload';
-import DAppView from '../components/DAppView';
 
 export default function Home() {
     const [walletAddress, setWalletAddress] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'kyc' | 'dapp'>('kyc');
 
     const connectWallet = async () => {
         if (typeof window.ethereum !== 'undefined') {
@@ -82,31 +80,8 @@ export default function Home() {
                     </div>
                 ) : (
                     <>
-                        {/* Tabs */}
-                        <div className="flex justify-center mb-8">
-                            <div className="bg-gray-900 border border-gray-800 p-1 rounded-xl flex gap-1">
-                                <button 
-                                    onClick={() => setActiveTab('kyc')}
-                                    className={`px-8 py-3 rounded-lg font-medium transition-all ${activeTab === 'kyc' ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
-                                >
-                                    Get Verified
-                                </button>
-                                <button 
-                                    onClick={() => setActiveTab('dapp')}
-                                    className={`px-8 py-3 rounded-lg font-medium transition-all ${activeTab === 'dapp' ? 'bg-gray-800 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}
-                                >
-                                    Test Authentication
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Content */}
                         <div className="transition-all duration-300 ease-in-out">
-                            {activeTab === 'kyc' ? (
-                                <KYCUpload walletAddress={walletAddress} />
-                            ) : (
-                                <DAppView walletAddress={walletAddress} />
-                            )}
+                            <KYCUpload walletAddress={walletAddress} />
                         </div>
                     </>
                 )}

@@ -28,6 +28,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        - NEXT_PUBLIC_WLD_APP_ID=${NEXT_PUBLIC_WLD_APP_ID:-app_staging_df61b0c0bc135b91bdf1a88b209d7cf7}
     container_name: aegisid_frontend
     ports:
       - "3000:3000"
@@ -38,6 +40,7 @@ services:
     environment:
       # Optional: set env variable for backend URL in Next.js if necessary
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+      - NEXT_PUBLIC_WLD_APP_ID=${NEXT_PUBLIC_WLD_APP_ID:-app_staging_df61b0c0bc135b91bdf1a88b209d7cf7}
 
 networks:
   aegisid_network:
