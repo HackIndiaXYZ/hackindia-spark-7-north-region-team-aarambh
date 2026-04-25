@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-pydantic
-face_recognition
-pytesseract
-Pillow
-python-multipart

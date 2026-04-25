@@ -9,17 +9,6 @@ services:
     networks:
       - aegisid_network
 
-  python-ai:
-    build:
-      context: ./python_service
-    container_name: aegisid_python_ai
-    ports:
-      - "8000:8000"
-    networks:
-      - aegisid_network
-    environment:
-      - PYTHONUNBUFFERED=1
-
   backend:
     build:
       context: ./backend
@@ -28,12 +17,11 @@ services:
       - "3001:3001"
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/aegisid
-      - ENCRYPTION_KEY=supersecretkey123456789012345678 # Must be 32 chars exactly!
-      - PYTHON_AI_URL=http://python-ai:8000/process_biometrics
       - PORT=3001
+    env_file:
+      - .env
     depends_on:
       - mongodb
-      - python-ai
     networks:
       - aegisid_network
 

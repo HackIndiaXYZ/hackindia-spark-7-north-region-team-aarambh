@@ -1,109 +1,143 @@
 require('dotenv').config();
 const express = require('express');
-const multer = require('multer');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const axios = require('axios');
-const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 
-const KycSession = require('./models/KycSession');
+const User = require('./models/User');
 
 const app = express();
 app.use(cors());
+
+// Webhook requires raw body for signature verification sometimes, but assuming json for now
 app.use(express.json());
 
-// Configure Multer for in-memory file handling
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
-
-// AES-256 Encryption Setup
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 256 bits (32 characters)
-if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 32) {
-    console.error("CRITICAL: Invalid or missing ENCRYPTION_KEY in environment variables.");
-    process.exit(1);
-}
-
-const ALGORITHM = 'aes-256-cbc';
-
-function encryptBuffer(buffer) {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
-    let encrypted = cipher.update(buffer);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return {
-        iv: iv.toString('hex'),
-        encryptedData: encrypted.toString('hex')
-    };
-}
-
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/aegisid', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-// Verification Endpoint
-app.post('/api/kyc/verify', upload.fields([{ name: 'idImage', maxCount: 1 }, { name: 'selfie', maxCount: 1 }]), async (req, res) => {
+const SUMSUB_APP_TOKEN = process.env.SUMSUB_APP_TOKEN || 'dummy_token';
+const SUMSUB_SECRET_KEY = process.env.SUMSUB_SECRET_KEY || 'dummy_secret';
+const SECRET_SALT = process.env.SECRET_SALT || 'supersafesalt123';
+
+// Helper function to create Sumsub API signature
+function createSignature(method, path, body = '') {
+    const ts = Math.floor(Date.now() / 1000);
+    const signature = crypto.createHmac('sha256', SUMSUB_SECRET_KEY);
+    signature.update(ts + method.toUpperCase() + path + (body ? body : ''));
+    return {
+        'X-App-Token': SUMSUB_APP_TOKEN,
+        'X-App-Access-Sig': signature.digest('hex'),
+        'X-App-Access-Ts': ts,
+    };
+}
+
+// 1. Generate Access Token for WebSDK
+app.post('/api/kyc/start', async (req, res) => {
     try {
         const { walletAddress } = req.body;
-        const idImage = req.files['idImage'] ? req.files['idImage'][0] : null;
-        const selfie = req.files['selfie'] ? req.files['selfie'][0] : null;
-
-        if (!walletAddress || !idImage || !selfie) {
-            return res.status(400).json({ error: 'Wallet address, ID image, and selfie are required.' });
+        if (!walletAddress) {
+            return res.status(400).json({ error: 'Wallet address required' });
         }
 
-        // 1. Immediately Encrypt Images
-        const encryptedId = encryptBuffer(idImage.buffer);
-        const encryptedSelfie = encryptBuffer(selfie.buffer);
-        
-        const encIdStr = encryptedId.iv + ':' + encryptedId.encryptedData;
-        const encSelfieStr = encryptedSelfie.iv + ':' + encryptedSelfie.encryptedData;
+        // Check if user exists, else create PENDING user
+        let user = await User.findOne({ walletAddress });
+        if (!user) {
+            user = new User({ walletAddress, status: 'PENDING' });
+            await user.save();
+        }
 
-        // 2. Store off-chain in MongoDB
-        const sessionId = uuidv4();
-        const newSession = new KycSession({
-            sessionId,
-            walletAddress,
-            encryptedIdImage: encIdStr,
-            encryptedSelfieImage: encSelfieStr,
-            iv: encryptedId.iv // legacy field, kept for schema compliance
-        });
-        await newSession.save();
+        // Provide an externalUserId to Sumsub (we use walletAddress)
+        const externalUserId = walletAddress;
+        const levelName = 'basic-kyc-level'; // Assume this level exists in Sumsub
 
-        // 3. Call Python AI Microservice
-        // Security note: Node and Python microservices must communicate over a secure internal network.
-        const aiPayload = {
-            idImageBase64: idImage.buffer.toString('base64'),
-            selfieBase64: selfie.buffer.toString('base64')
+        // The path to generate an access token
+        const path = `/resources/accessTokens?userId=${externalUserId}&levelName=${levelName}`;
+        const headers = {
+            ...createSignature('POST', path),
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
         };
 
-        const aiResponse = await axios.post(process.env.PYTHON_AI_URL || 'http://localhost:8000/process_biometrics', aiPayload, {
-            headers: { 'Content-Type': 'application/json' }
+        const response = await axios({
+            method: 'post',
+            url: `https://api.sumsub.com${path}`,
+            headers: headers
         });
+        
+        return res.json({ token: response.data.token, userId: externalUserId });
+    } catch (error) {
+        const sumsubError = error.response?.data?.description || error.response?.data?.errorName || error.message;
+        console.error('Error generating Sumsub token:', sumsubError);
+        res.status(error.response?.status || 500).json({ 
+            error: 'Failed to generate access token',
+            details: sumsubError
+        });
+    }
+});
 
-        const { biometricHash, verified, error } = aiResponse.data;
+// 2. Webhook to receive verification result
+app.post('/api/kyc/webhook', async (req, res) => {
+    try {
+        // Here we should verify webhook signature. For brevity/mock, we assume it's valid.
+        const payload = req.body;
 
-        if (!verified) {
-            newSession.status = 'FAILED';
-            await newSession.save();
-            return res.status(400).json({ error: 'Biometric verification failed: ' + (error || 'Mismatch') });
+        // Example payload type: 'applicantReviewed'
+        if (payload.type === 'applicantReviewed') {
+            const externalUserId = payload.externalUserId; // this is the walletAddress
+            const applicantId = payload.applicantId;
+            const reviewResult = payload.reviewResult;
+
+            if (reviewResult.reviewAnswer === 'GREEN') {
+                // KYC Passed
+                const walletAddress = externalUserId;
+
+                // Generate proofHash
+                const proofHashInput = applicantId + walletAddress + SECRET_SALT;
+                const proofHash = '0x' + crypto.createHash('sha256').update(proofHashInput).digest('hex');
+
+                // Update user
+                await User.findOneAndUpdate(
+                    { walletAddress },
+                    { 
+                        kycId: applicantId, 
+                        status: 'VERIFIED',
+                        proofHash: proofHash
+                    },
+                    { upsert: true }
+                );
+
+                console.log(`User ${walletAddress} verified! ProofHash: ${proofHash}`);
+            } else {
+                // KYC Failed
+                await User.findOneAndUpdate(
+                    { walletAddress: externalUserId },
+                    { status: 'FAILED' },
+                    { upsert: true }
+                );
+            }
         }
 
-        // 4. Update session status
-        newSession.status = 'VERIFIED';
-        await newSession.save();
-
-        // 5. Return success and the hash
-        return res.json({
-            success: true,
-            message: 'KYC Verification Successful',
-            biometricHash: biometricHash
-        });
-
+        res.status(200).send('OK');
     } catch (error) {
-        console.error('KYC Verification Error:', error);
-        res.status(500).json({ error: 'Internal server error during verification.' });
+        console.error('Webhook error:', error.message || error);
+        res.status(500).json({ error: 'Internal Server Error processing webhook' });
+    }
+});
+
+// Verification Endpoint for dApps
+app.get('/api/verify/:wallet', async (req, res) => {
+    try {
+        const user = await User.findOne({ walletAddress: req.params.wallet });
+        if (!user || user.status !== 'VERIFIED') {
+            return res.json({ isVerified: false });
+        }
+        return res.json({ isVerified: true, proofHash: user.proofHash });
+    } catch (error) {
+        console.error('Error verifying wallet:', error.message || error);
+        res.status(500).json({ error: 'Server error during verification' });
     }
 });
 
