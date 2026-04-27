@@ -162,15 +162,25 @@ app.get('/api/admin/user-data/:walletAddress', async (req, res) => {
             });
         }
 
+        // Fetch additional useful data for the admin dashboard
+        const targetReceipt = await provider.getTransactionReceipt(targetTxHash);
+        const targetBlock = await provider.getBlock(targetTx.blockNumber);
+
         // 5. Send the formatted rows back to admin dashboard
         res.json({
             success: true,
             walletId: walletAddress,
             transactionHash: targetTxHash,
             blockNumber: targetTx.blockNumber,
+            timestamp: targetBlock.timestamp,
+            gasUsed: targetReceipt.gasUsed.toString(),
+            effectiveGasPrice: targetReceipt.effectiveGasPrice ? targetReceipt.effectiveGasPrice.toString() : "0",
+            fromAddress: targetTx.from,
+            status: targetReceipt.status === 1 ? "Success" : "Failed",
             submittedData: {
                 functionCalled: parsedTx.name,
-                arguments: parsedTx.args.map(arg => arg.toString())
+                arguments: parsedTx.args.map(arg => arg.toString()),
+                rawData: targetTx.data
             }
         });
 

@@ -106,27 +106,60 @@ export default function AdminDashboard() {
               </h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Transaction Hash</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Transaction Hash</h3>
                 <a 
                   href={`https://sepolia.etherscan.io/tx/${data.transactionHash}`}
                   target="_blank"
                   rel="noreferrer"
                   className="text-blue-400 hover:text-blue-300 font-mono text-sm break-all transition-colors underline decoration-blue-500/30 underline-offset-4"
                 >
-                  {data.transactionHash}
+                  {data.transactionHash.substring(0, 12)}...{data.transactionHash.substring(54)}
                 </a>
               </div>
-              
+
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Block Number</h3>
-                <p className="text-gray-100 font-mono text-lg">{data.blockNumber}</p>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</h3>
+                <span className={`inline-flex items-center space-x-1.5 px-3 py-1 text-xs font-semibold rounded-full border ${data.status === 'Success' ? 'bg-green-900/30 text-green-400 border-green-500/50' : 'bg-red-900/30 text-red-400 border-red-500/50'}`}>
+                  {data.status === 'Success' && <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>}
+                  {data.status === 'Failed' && <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>}
+                  <span>{data.status || 'Success'}</span>
+                </span>
               </div>
 
-              <div className="space-y-2 md:col-span-2">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Smart Contract Function Called</h3>
-                <span className="inline-block mt-1 px-4 py-1.5 bg-gray-900 text-green-400 text-sm font-mono rounded-lg border border-gray-700 shadow-inner">
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Timestamp</h3>
+                <p className="text-gray-200 text-sm font-mono">{data.timestamp ? new Date(data.timestamp * 1000).toLocaleString() : 'N/A'}</p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Block Number</h3>
+                <p className="text-gray-200 font-mono text-sm">{data.blockNumber}</p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Relayer Address</h3>
+                <a 
+                  href={`https://sepolia.etherscan.io/address/${data.fromAddress}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-400 hover:text-blue-300 font-mono text-sm break-all transition-colors"
+                >
+                  {data.fromAddress ? `${data.fromAddress.substring(0, 8)}...${data.fromAddress.substring(36)}` : 'N/A'}
+                </a>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Network Fee (Gas)</h3>
+                <p className="text-gray-200 font-mono text-sm">
+                  {data.gasUsed && data.effectiveGasPrice ? (Number(data.gasUsed) * Number(data.effectiveGasPrice) / 1e18).toFixed(6) + ' ETH' : 'N/A'}
+                </p>
+              </div>
+
+              <div className="space-y-2 md:col-span-2 lg:col-span-3 pt-4 border-t border-gray-700/50">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Smart Contract Function Called</h3>
+                <span className="inline-block mt-2 px-4 py-1.5 bg-gray-900 text-green-400 text-sm font-mono rounded-lg border border-gray-700 shadow-inner">
                   {data.submittedData.functionCalled}
                 </span>
               </div>
