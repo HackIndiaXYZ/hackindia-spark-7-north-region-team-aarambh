@@ -13,8 +13,7 @@ services:
       - key: PORT
         value: 3001
       - key: MONGODB_URI
-        sync: false # You will set this manually in the Render Dashboard
-      # Add other backend environment variables from your .env here
+        sync: false # Paste a dummy value like "mongodb://localhost:27017/test" if you don't want to set this up right now
 
   # ---------------------------------
   # Blockchain API Service
@@ -29,9 +28,12 @@ services:
     envVars:
       - key: PORT
         value: 3002
-      # Add blockchain environment variables (e.g., PRIVATE_KEY, RPC_URL) here
-      # - key: PRIVATE_KEY
-      #   sync: false
+      - key: CONTRACT_ADDRESS
+        sync: false
+      - key: RPC_URL
+        sync: false
+      - key: PRIVATE_KEY
+        sync: false
 
   # ---------------------------------
   # Frontend Web Service
