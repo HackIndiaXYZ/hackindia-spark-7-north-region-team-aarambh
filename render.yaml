@@ -1,0 +1,58 @@
+services:
+  # ---------------------------------
+  # Backend API Service
+  # ---------------------------------
+  - type: web
+    name: aegisgate-backend
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    region: ohio
+    plan: free # Change if you need more resources
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: MONGODB_URI
+        sync: false # You will set this manually in the Render Dashboard
+      # Add other backend environment variables from your .env here
+
+  # ---------------------------------
+  # Blockchain API Service
+  # ---------------------------------
+  - type: web
+    name: aegisgate-blockchain
+    env: docker
+    dockerContext: ./blockchain
+    dockerfilePath: ./blockchain/Dockerfile
+    region: ohio
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3002
+      # Add blockchain environment variables (e.g., PRIVATE_KEY, RPC_URL) here
+      # - key: PRIVATE_KEY
+      #   sync: false
+
+  # ---------------------------------
+  # Frontend Web Service
+  # ---------------------------------
+  - type: web
+    name: aegisgate-frontend
+    env: docker
+    dockerContext: ./frontend
+    dockerfilePath: ./frontend/Dockerfile
+    region: ohio
+    plan: free
+    envVars:
+      - key: NEXT_PUBLIC_BACKEND_URL
+        fromService:
+          type: web
+          name: aegisgate-backend
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXT_PUBLIC_BLOCKCHAIN_URL
+        fromService:
+          type: web
+          name: aegisgate-blockchain
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXT_PUBLIC_WLD_APP_ID
+        value: "app_staging_df61b0c0bc135b91bdf1a88b209d7cf7"

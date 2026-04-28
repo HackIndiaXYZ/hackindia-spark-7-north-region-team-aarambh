@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "framer-motion": "^12.38.0",
+    "http": "^0.0.1-security",
     "motion": "^12.38.0"
   }
 }

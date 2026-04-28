@@ -32,10 +32,17 @@
       "static/chunks/main.js",
       "static/chunks/pages/admin.js"
     ],
+<<<<<<< HEAD
     "/aethereal": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/aethereal.js"
+=======
+    "/dashboard": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/dashboard.js"
+>>>>>>> 6910712 (Add render blueprint setup)
     ]
   },
   "ampFirstPages": []

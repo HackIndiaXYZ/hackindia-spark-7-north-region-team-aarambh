@@ -128,7 +128,7 @@ export default function KYCUpload({ walletAddress }: KYCUploadProps) {
                     
                     <IDKitWidget
                         app_id={(process.env.NEXT_PUBLIC_WLD_APP_ID || "app_staging_df61b0c0bc135b91bdf1a88b209d7cf7") as `app_${string}`}
-                        action="verify-device"
+                        action={process.env.NEXT_PUBLIC_WLD_ACTION || "verify-device"}
                         onSuccess={() => {
                             setWorldIdStatus('success');
                         }}
