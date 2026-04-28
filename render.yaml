@@ -14,6 +14,12 @@ services:
         value: 3001
       - key: MONGODB_URI
         sync: false # Paste a dummy value like "mongodb://localhost:27017/test" if you don't want to set this up right now
+      - key: SUMSUB_APP_TOKEN
+        sync: false
+      - key: SUMSUB_SECRET_KEY
+        sync: false
+      - key: SECRET_SALT
+        sync: false
 
   # ---------------------------------
   # Blockchain API Service
