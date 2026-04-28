@@ -15,7 +15,8 @@ export default function AdminDashboard() {
     setDebugData([]);
 
     try {
-      const response = await fetch(`http://localhost:3002/api/admin/user-data/${wallet}`);
+      const RELAYER_URL = process.env.NEXT_PUBLIC_BLOCKCHAIN_URL || 'http://localhost:3002';
+      const response = await fetch(`${RELAYER_URL}/api/admin/user-data/${wallet}`);
       const result = await response.json();
 
       if (!response.ok) {

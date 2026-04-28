@@ -19,7 +19,8 @@ export default function KYCUpload({ walletAddress }: KYCUploadProps) {
     useEffect(() => {
         const fetchToken = async () => {
             try {
-                const res = await fetch('http://localhost:3001/api/kyc/start', {
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+                const res = await fetch(`${API_URL}/api/kyc/start`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ walletAddress })
@@ -82,7 +83,8 @@ export default function KYCUpload({ walletAddress }: KYCUploadProps) {
                 let hash = null;
                 for (let i = 0; i < 5; i++) {
                     await new Promise(r => setTimeout(r, 2000));
-                    const res = await fetch(`http://localhost:3001/api/verify/${walletAddress}`);
+                    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+                    const res = await fetch(`${API_URL}/api/verify/${walletAddress}`);
                     const data = await res.json();
                     if (data.isVerified && data.proofHash) {
                         hash = data.proofHash;
