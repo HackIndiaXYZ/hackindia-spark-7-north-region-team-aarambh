@@ -52,7 +52,7 @@ services:
     region: ohio
     plan: free
     envVars:
-      - key: NEXT_PUBLIC_BACKEND_URL
+      - key: NEXT_PUBLIC_API_URL
         fromService:
           type: web
           name: aegisgate-backend
@@ -63,4 +63,8 @@ services:
           name: aegisgate-blockchain
           envVarKey: RENDER_EXTERNAL_URL
       - key: NEXT_PUBLIC_WLD_APP_ID
+        sync: false
+      - key: NEXT_PUBLIC_CONTRACT_ADDRESS
+        sync: false
+      - key: NEXT_PUBLIC_RPC_URL
         sync: false
