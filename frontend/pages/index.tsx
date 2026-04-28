@@ -8,7 +8,7 @@ function Navbar() {
     <div className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-5xl z-50 pointer-events-none">
       <nav className="pointer-events-auto backdrop-blur-md rounded-full bg-white/10 border border-black/10 px-6 py-3 flex justify-between items-center">
         <div className="font-instrument text-[28px] tracking-tight text-[#1a1a1a]">AegisID</div>
-        <div className="hidden md:flex gap-10">
+        <div className="hidden md:flex gap-6 lg:gap-10">
           {[
             { name: "Architecture", href: "#architecture" },
             { name: "Privacy", href: "#privacy" },
@@ -20,13 +20,12 @@ function Navbar() {
             </a>
           ))}
         </div>
-        <div className="flex items-center gap-4">
-          <Link href="/aethereal" className="group relative rounded-full text-[#1a1a1a] font-sans text-[14px] px-6 py-2.5 outline-1 outline-black/10 -outline-offset-1 overflow-hidden transition-all flex items-center justify-center hover:bg-black/5 hidden md:flex">
-            <span className="relative z-10">Aethereal</span>
-          </Link>
-          <Link href="/admin" className="group relative rounded-full text-[#1a1a1a] font-sans text-[14px] px-6 py-2.5 outline-1 outline-black/10 -outline-offset-1 overflow-hidden transition-all flex items-center justify-center hover:bg-black/5 hidden md:flex">
-            <span className="relative z-10">Admin</span>
-          </Link>
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="hidden lg:flex items-center gap-4 border-r border-black/10 pr-4">
+               <Link href="/aethereal" className="font-sans text-[13px] text-[#1a1a1a] font-medium hover:text-[#0871E7] transition-colors">Aethereal</Link>
+               <Link href="/dapp" className="font-sans text-[13px] text-[#1a1a1a] font-medium hover:text-[#0871E7] transition-colors">YieldSwap</Link>
+               <Link href="/admin" className="font-sans text-[13px] text-[#1a1a1a] font-medium hover:text-[#0871E7] transition-colors">Admin</Link>
+          </div>
           <Link href="/dashboard" className="group relative bg-[#0871E7] rounded-full text-white font-sans text-[14px] px-6 py-2.5 shadow-[inset_0_-4px_4px_rgba(255,255,255,0.39)] outline-1 outline-[#0871E7] -outline-offset-1 overflow-hidden transition-all flex items-center justify-center">
             <div className="absolute w-[80%] h-4 left-[10%] top-[1px] bg-gradient-to-b from-[#DEF0FC] to-transparent rounded-[12px] group-hover:scale-x-105 transition-transform duration-300"></div>
             <span className="relative z-10 flex items-center gap-2">Launch App <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></span>

@@ -30,25 +30,31 @@ export default function AetherealFinance() {
                 setAuthStep('verifying');
 
                 // 2. Verify with AegisID on Blockchain
-                // Use a dedicated Sepolia provider to check the contract, so it works regardless of the user's active MetaMask network
-                const SEPOLIA_RPC = "https://ethereum-sepolia-rpc.publicnode.com";
+                // Use the user's active network provider first, in case they deployed on local Hardhat.
+                const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
                 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0x10B313a1191357aC7Af99e140a81eaC3742A8A73"; 
                 
                 let verified = false;
                 try {
-                    const readOnlyProvider = new ethers.providers.JsonRpcProvider(SEPOLIA_RPC);
-                    const contract = new ethers.Contract(CONTRACT_ADDRESS, AEGIS_ID_ABI, readOnlyProvider);
+                    const contract = new ethers.Contract(CONTRACT_ADDRESS, AEGIS_ID_ABI, provider);
                     verified = await contract.checkVerification(address);
                 } catch (e) {
-                    console.error("Blockchain verification check failed, falling back to API:", e);
+                    console.error("Blockchain verification check on current network failed, falling back to Sepolia/API:", e);
                     try {
-                        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-                        const res = await fetch(`${API_URL}/api/verify/${address}`);
-                        const data = await res.json();
-                        verified = data.isVerified;
-                    } catch (apiError) {
-                        console.error("Fallback API also failed:", apiError);
-                        verified = false;
+                        const readOnlyProvider = new ethers.providers.JsonRpcProvider(RPC_URL);
+                        const fallbackContract = new ethers.Contract(CONTRACT_ADDRESS, AEGIS_ID_ABI, readOnlyProvider);
+                        verified = await fallbackContract.checkVerification(address);
+                    } catch (e2) {
+                        console.error("Fallback to Sepolia RPC failed:", e2);
+                        try {
+                            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+                            const res = await fetch(`${API_URL}/api/verify/${address}`);
+                            const data = await res.json();
+                            verified = data.isVerified;
+                        } catch (apiError) {
+                            console.error("Fallback API also failed:", apiError);
+                            verified = false;
+                        }
                     }
                 }
 

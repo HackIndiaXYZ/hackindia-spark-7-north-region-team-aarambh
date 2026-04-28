@@ -49,9 +49,12 @@ export default function AdminDashboard() {
           <div className="hidden md:flex gap-10">
             <Link href="/" className="font-sans text-[14px] text-[#1a1a1a] hover:opacity-70 transition-opacity">Home</Link>
           </div>
-          <div className="flex gap-4">
-            <Link href="/aethereal" className="group relative rounded-full text-[#1a1a1a] font-sans text-[14px] px-6 py-2.5 outline-1 outline-black/10 -outline-offset-1 overflow-hidden transition-all flex items-center justify-center hover:bg-black/5 hidden md:flex">
+          <div className="flex items-center gap-4">
+            <Link href="/aethereal" className="group relative rounded-full text-[#1a1a1a] font-sans text-[14px] px-4 py-2.5 outline-1 outline-black/10 -outline-offset-1 overflow-hidden transition-all flex items-center justify-center hover:bg-black/5 hidden md:flex">
               <span className="relative z-10">Aethereal</span>
+            </Link>
+            <Link href="/dapp" className="group relative rounded-full text-[#1a1a1a] font-sans text-[14px] px-4 py-2.5 outline-1 outline-black/10 -outline-offset-1 overflow-hidden transition-all flex items-center justify-center hover:bg-black/5 hidden md:flex">
+              <span className="relative z-10">YieldSwap</span>
             </Link>
             <Link href="/dashboard" className="group relative bg-[#0871E7] rounded-full text-white font-sans text-[14px] px-6 py-2.5 shadow-[inset_0_-4px_4px_rgba(255,255,255,0.39)] outline-1 outline-[#0871E7] -outline-offset-1 overflow-hidden transition-all flex items-center justify-center">
               <div className="absolute w-[80%] h-4 left-[10%] top-[1px] bg-gradient-to-b from-[#DEF0FC] to-transparent rounded-[12px] group-hover:scale-x-105 transition-transform duration-300"></div>
@@ -81,9 +84,13 @@ export default function AdminDashboard() {
             <button 
               onClick={fetchBlockchainData}
               disabled={loading || !wallet}
-              className="bg-[#0871E7] hover:bg-[#0871E7]/90 text-white px-8 py-3 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+              className="bg-[#0871E7] hover:bg-[#0871E7]/90 text-white px-8 py-3 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center min-w-[160px]"
             >
-              {loading ? 'Searching Ledger...' : 'Lookup Data'}
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              ) : (
+                'Lookup Data'
+              )}
             </button>
           </div>
         </div>
