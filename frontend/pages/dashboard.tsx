@@ -36,20 +36,28 @@ export default function Dashboard() {
                         <span className="font-instrument text-4xl tracking-tight text-[#1a1a1a]">AegisID</span>
                     </Link>
 
-                    {!walletAddress ? (
-                        <button 
-                            onClick={connectWallet}
-                            className="bg-[#0871E7] hover:opacity-90 px-6 py-2.5 rounded-full font-medium flex items-center gap-2 transition-all shadow-[inset_0_-4px_4px_rgba(255,255,255,0.39)] text-white"
-                        >
-                            <Wallet className="w-4 h-4 text-white" />
-                            Connect Wallet
-                        </button>
-                    ) : (
-                        <div className="bg-white/50 border border-black/10 px-4 py-2 rounded-full font-mono text-sm text-[#1a1a1a] flex items-center gap-2 shadow-sm">
-                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                            {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-                        </div>
-                    )}
+                    <div className="flex gap-4">
+                        <Link href="/aethereal" className="group relative rounded-full text-[#1a1a1a] font-sans text-[14px] px-6 py-2.5 outline-1 outline-black/10 -outline-offset-1 overflow-hidden transition-all flex items-center justify-center hover:bg-black/5 hidden md:flex">
+                            <span className="relative z-10">Aethereal</span>
+                        </Link>
+                        <Link href="/admin" className="group relative rounded-full text-[#1a1a1a] font-sans text-[14px] px-6 py-2.5 outline-1 outline-black/10 -outline-offset-1 overflow-hidden transition-all flex items-center justify-center hover:bg-black/5 hidden md:flex">
+                            <span className="relative z-10">Admin</span>
+                        </Link>
+                        {!walletAddress ? (
+                            <button 
+                                onClick={connectWallet}
+                                className="bg-[#0871E7] hover:opacity-90 px-6 py-2.5 rounded-full font-medium flex items-center gap-2 transition-all shadow-[inset_0_-4px_4px_rgba(255,255,255,0.39)] text-white text-[14px]"
+                            >
+                                <Wallet className="w-4 h-4 text-white" />
+                                Connect Wallet
+                            </button>
+                        ) : (
+                            <div className="bg-white/50 border border-black/10 px-4 py-2 rounded-full font-mono text-sm text-[#1a1a1a] flex items-center gap-2 shadow-sm">
+                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </nav>
 

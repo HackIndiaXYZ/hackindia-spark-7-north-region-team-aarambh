@@ -20,10 +20,18 @@ function Navbar() {
             </a>
           ))}
         </div>
-        <Link href="/dashboard" className="group relative bg-[#0871E7] rounded-full text-white font-sans text-[14px] px-6 py-2.5 shadow-[inset_0_-4px_4px_rgba(255,255,255,0.39)] outline-1 outline-[#0871E7] -outline-offset-1 overflow-hidden transition-all flex items-center justify-center">
-          <div className="absolute w-[80%] h-4 left-[10%] top-[1px] bg-gradient-to-b from-[#DEF0FC] to-transparent rounded-[12px] group-hover:scale-x-105 transition-transform duration-300"></div>
-          <span className="relative z-10">Launch App</span>
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/aethereal" className="group relative rounded-full text-[#1a1a1a] font-sans text-[14px] px-6 py-2.5 outline-1 outline-black/10 -outline-offset-1 overflow-hidden transition-all flex items-center justify-center hover:bg-black/5 hidden md:flex">
+            <span className="relative z-10">Aethereal</span>
+          </Link>
+          <Link href="/admin" className="group relative rounded-full text-[#1a1a1a] font-sans text-[14px] px-6 py-2.5 outline-1 outline-black/10 -outline-offset-1 overflow-hidden transition-all flex items-center justify-center hover:bg-black/5 hidden md:flex">
+            <span className="relative z-10">Admin</span>
+          </Link>
+          <Link href="/dashboard" className="group relative bg-[#0871E7] rounded-full text-white font-sans text-[14px] px-6 py-2.5 shadow-[inset_0_-4px_4px_rgba(255,255,255,0.39)] outline-1 outline-[#0871E7] -outline-offset-1 overflow-hidden transition-all flex items-center justify-center">
+            <div className="absolute w-[80%] h-4 left-[10%] top-[1px] bg-gradient-to-b from-[#DEF0FC] to-transparent rounded-[12px] group-hover:scale-x-105 transition-transform duration-300"></div>
+            <span className="relative z-10 flex items-center gap-2">Launch App <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></span>
+          </Link>
+        </div>
       </nav>
     </div>
   );
