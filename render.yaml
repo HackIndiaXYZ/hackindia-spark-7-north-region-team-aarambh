@@ -57,4 +57,4 @@ services:
           name: aegisgate-blockchain
           envVarKey: RENDER_EXTERNAL_URL
       - key: NEXT_PUBLIC_WLD_APP_ID
-        value: "app_staging_df61b0c0bc135b91bdf1a88b209d7cf7"
+        sync: false
